@@ -1,10 +1,10 @@
-import { FC, useState, useEffect } from "react";
+import { FC, useEffect, useState } from "react";
+import { SwitchProps, useSwitch } from "@nextui-org/react";
 import { VisuallyHidden } from "@react-aria/visually-hidden";
-import { SwitchProps, useSwitch } from "@nextui-org/switch";
-import { useTheme } from "next-themes";
 import clsx from "clsx";
+import { useTheme } from "next-themes";
 
-import { SunFilledIcon, MoonFilledIcon } from "@/components/icons";
+import { MoonFilledIcon, SunFilledIcon } from "@/components/icons";
 
 export interface ThemeSwitchProps {
   className?: string;

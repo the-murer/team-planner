@@ -1,4 +1,5 @@
 import {
+  Button,
   Modal,
   ModalBody,
   ModalContent,
@@ -9,7 +10,6 @@ import {
 } from "@nextui-org/react";
 import React, { useEffect, useState } from "react";
 import { BrainCircuit } from "lucide-react";
-import { Button } from "@nextui-org/button";
 import OpenAI from "openai";
 
 const generateInput = (forms: any[]) => {

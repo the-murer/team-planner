@@ -1,6 +1,5 @@
-"use server";
-
 import {
+  Button,
   Modal,
   ModalBody,
   ModalContent,
@@ -10,7 +9,6 @@ import {
   RadioGroup,
   useDisclosure,
 } from "@nextui-org/react";
-import { Button } from "@nextui-org/button";
 import { Plus } from "lucide-react";
 import { getSession } from "next-auth/react";
 import { useState } from "react";

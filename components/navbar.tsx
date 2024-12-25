@@ -1,27 +1,28 @@
 "use session";
+
 import {
-  Navbar as NextUINavbar,
-  NavbarContent,
-  NavbarMenuToggle,
+  Button,
+  Input,
+  Kbd,
+  Link,
   NavbarBrand,
+  NavbarContent,
   NavbarItem,
-  NavbarMenuItem,
   NavbarMenu,
-} from "@nextui-org/navbar";
-import { Button } from "@nextui-org/button";
-import { Kbd } from "@nextui-org/kbd";
-import { Link } from "@nextui-org/link";
-import { Input } from "@nextui-org/input";
-import { link as linkStyles } from "@nextui-org/theme";
+  NavbarMenuItem,
+  NavbarMenuToggle,
+  Navbar as NextUINavbar,
+  link as linkStyles,
+} from "@nextui-org/react";
+import { LogOut, UserCircle } from "lucide-react";
 import NextLink from "next/link";
 import clsx from "clsx";
-import { LogOut, UserCircle } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
-import { GithubIcon, SearchIcon, Logo } from "@/components/icons";
+import { GithubIcon, Logo, SearchIcon } from "@/components/icons";
 
 type NavBarProps = {
   user: {

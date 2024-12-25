@@ -1,8 +1,5 @@
-"use server";
-
+import { Button, Card } from "@nextui-org/react";
 import { useEffect, useState } from "react";
-import { Button } from "@nextui-org/button";
-import { Card } from "@nextui-org/react";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 

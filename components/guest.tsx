@@ -1,4 +1,5 @@
 import {
+  Button,
   Input,
   Modal,
   ModalBody,
@@ -9,7 +10,6 @@ import {
   SelectItem,
   useDisclosure,
 } from "@nextui-org/react";
-import { Button } from "@nextui-org/button";
 import { MessageCirclePlus } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
