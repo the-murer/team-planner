@@ -1,14 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
+import Company from "@/database/models/Company";
 import User from "@/database/models/User";
 import dbConnect from "@/database/dbConnect";
-import {
-  assembleUserObject,
-  generateRefreshToken,
-  generateToken,
-  generateUserCreatePayload,
-} from "@/utils/user_utils";
-import Company from "@/database/models/Company";
+import { generateUserCreatePayload } from "@/utils/user_utils";
 
 export default async function handler(
   req: NextApiRequest,
@@ -51,13 +46,8 @@ export default async function handler(
 
         await User.create(user);
 
-        const accessToken = generateToken(assembleUserObject(user));
-        const refreshToken = generateRefreshToken(assembleUserObject(user));
-
         res.status(200).json({
           success: true,
-          accessToken,
-          refreshToken,
         });
       } catch (error: any) {
         res.status(400).json({ success: false, error: error.message });
