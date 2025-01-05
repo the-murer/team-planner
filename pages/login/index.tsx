@@ -21,6 +21,7 @@ export default function DocsPage() {
   const router = useRouter();
 
   const onSubmit = async (data: any) => {
+    console.log("🚀 ~ onSubmit ~ onSubmit => ", process.env.MONGO_URI);
     console.log("🚀 ~ onSubmit ~ data => ", data);
     if (selected === "login") {
       try {
@@ -32,6 +33,9 @@ export default function DocsPage() {
 
         console.log("🚀 ~ onSubmit ~ res => ", res);
 
+        if (res?.error) {
+          toast.error(res.error);
+        }
         if (res?.ok) {
           router.push("/dash");
         }
