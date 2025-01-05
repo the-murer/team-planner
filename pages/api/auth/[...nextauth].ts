@@ -1,11 +1,11 @@
 import type { NextAuthOptions } from "next-auth";
 
-import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import NextAuth from "next-auth";
 import bcrypt from "bcrypt";
 
-import dbConnect from "@/database/dbConnect";
 import User from "@/database/models/User";
+import dbConnect from "@/database/dbConnect";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -71,7 +71,7 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || "fallback-secret",
 };
 
 export default NextAuth(authOptions);
