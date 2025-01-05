@@ -1,16 +1,17 @@
 import {
-  Tabs,
-  Tab,
-  Input,
-  Link,
   Button,
   Card,
   CardBody,
+  Input,
+  Link,
+  Tab,
+  Tabs,
 } from "@nextui-org/react";
-import { useState } from "react";
+import { signIn } from "next-auth/react";
+import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
-import { signIn } from "next-auth/react";
+import { useState } from "react";
 
 import DefaultLayout from "@/components/default";
 
@@ -20,6 +21,7 @@ export default function DocsPage() {
   const router = useRouter();
 
   const onSubmit = async (data: any) => {
+    console.log("🚀 ~ onSubmit ~ data => ", data);
     if (selected === "login") {
       try {
         const res = await signIn("credentials", {
@@ -28,11 +30,15 @@ export default function DocsPage() {
           password: data.password,
         });
 
+        console.log("🚀 ~ onSubmit ~ res => ", res);
+
         if (res?.ok) {
           router.push("/dash");
         }
+        toast.success("Login realizado com sucesso");
       } catch (error) {
-        console.log("🚀 ~ error => ", error);
+        console.log("🚀 error => ", error);
+        toast.error("Erro ao fazer login");
       }
     } else {
       const { companyId, isAdmin } = router.query;
@@ -49,13 +55,13 @@ export default function DocsPage() {
 
         const res = await response.json();
 
-        console.log("🚀 ~ onSubmit ~ res => ", res);
-
+        toast.success("Cadastro realizado com sucesso");
         if (res.data.success) {
           router.push("/");
         }
       } catch (error) {
-        console.log("🚀 ~ error => ", error);
+        toast.error("Erro ao fazer cadastro");
+        console.error("🚀 error => ", error);
       }
     }
   };
