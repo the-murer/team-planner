@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getSession } from "next-auth/react";
+import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 
 import DefaultLayout from "@/components/default";
@@ -31,10 +32,7 @@ export default function MeetsPage({ user, userIsAdmin }: MeetsPageProps) {
 
   useEffect(() => {
     const fetchMeets = async () => {
-      const baseUrl =
-        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-
-      await fetch(`${baseUrl}/api/meet`, {
+      await fetch(`/api/meet`, {
         method: "PATCH",
         body: JSON.stringify({ userId: user.id }),
       })
@@ -44,6 +42,7 @@ export default function MeetsPage({ user, userIsAdmin }: MeetsPageProps) {
           setMeets(response.meets);
         })
         .catch((error) => {
+          toast.error("Falha ao buscar reuniões");
           console.error("Falha na request: ", error.message);
         });
     };

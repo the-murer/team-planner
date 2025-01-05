@@ -9,9 +9,10 @@ import {
   RadioGroup,
   useDisclosure,
 } from "@nextui-org/react";
+import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 import { getSession } from "next-auth/react";
-import { useState } from "react";
+import { toast } from "react-toastify";
 
 import TableComponent from "@/components/table";
 import DefaultLayout from "@/components/default";
@@ -27,32 +28,51 @@ type UserPageProps = {
     email: string;
     id: string;
   };
-  users: any[];
   companyId: string;
 };
 
-export default function UserPage({ user, users, companyId }: UserPageProps) {
+export default function UserPage({ user, companyId }: UserPageProps) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [permission, setPermission] = useState<string>("false"); // Default permission is 'false' (Membro)
-
+  const [permission, setPermission] = useState<string>("false");
+  const [users, setUsers] = useState<any[]>([]);
   const handleCopyLink = () => {
-    const inviteLink = `https://your-website.com/invite?companyId=${companyId}&isAdmin=${permission}`;
+    const inviteLink = `http://localhost:3000/invite?companyId=${companyId}&isAdmin=${permission}`;
 
     navigator.clipboard
       .writeText(inviteLink)
       .then(() => {
-        // alert("Link copiado para a área de transferência!");
-        // onClose();
+        toast.success("Link copiado com sucesso!");
       })
       .catch((err) => {
         console.log("🚀 ~ handleCopyLink ~ err => ", err);
-        alert("Falha ao copiar o link!");
+        toast.error("Falha ao copiar o link!");
       });
   };
 
   const changePermission = (e: any) => {
     setPermission(e.target.value);
   };
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const response = await fetch(`/api/users`, {
+        method: "PATCH",
+        body: JSON.stringify({ userId: user.id }),
+      });
+
+      if (response.status !== 200) {
+        toast.error("Falha ao buscar usuários");
+
+        return;
+      }
+
+      const resp = await response.json();
+
+      setUsers(resp.users);
+    };
+
+    fetchUsers();
+  }, []);
 
   return (
     <DefaultLayout user={user}>
@@ -126,25 +146,9 @@ export async function getServerSideProps(context: any) {
 
   const user = session.user as any;
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  const users =
-    (await fetch(`${baseUrl}/api/users`, {
-      method: "PATCH",
-      body: JSON.stringify({ userId: user.id }),
-    })
-      .then(async (result) => {
-        const response = await result.json();
-
-        return response.users;
-      })
-      .catch((error) => {
-        console.error("Falha na request: ", error.message);
-      })) || [];
-
   return {
     props: {
       user,
-      users,
       companyId: userIsAdmin?._id || false,
     },
   };

@@ -1,11 +1,13 @@
+import "@/styles/globals.css";
+
 import type { AppProps } from "next/app";
 
-import { NextUIProvider } from "@nextui-org/system";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { NextUIProvider } from "@nextui-org/system";
+import { ToastContainer } from "react-toastify";
 import { useRouter } from "next/router";
 
-import { fontSans, fontMono } from "@/config/fonts";
-import "@/styles/globals.css";
+import { fontMono, fontSans } from "@/config/fonts";
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
@@ -15,6 +17,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <NextThemesProvider>
         <Component {...pageProps} />
       </NextThemesProvider>
+      <ToastContainer />
     </NextUIProvider>
   );
 }
