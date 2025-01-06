@@ -30,7 +30,7 @@ export default async function handler(
     case "GET":
       try {
         const today = new Date();
-        const todayDayOfWeek = today.getDay(); // 0 (Domingo) a 6 (Sábado)
+        const todayDayOfWeek = today.getDay();
 
         const meets = await Meet.find({ users: { $in: [id] } }).lean();
 
@@ -45,13 +45,15 @@ export default async function handler(
         });
 
         const pendentMeets = meets
+          .filter((meet) => meet.weekDay >= todayDayOfWeek)
           .map((meet) => {
-            // Calcular a próxima data da reunião com base no dia da semana
-            const meetDayOfWeek = meet.weekDay; // Ex: 0 (Domingo), 1 (Segunda), ...
+            const { weekDay: weekDayNumber } = meet;
+
             const daysUntilMeet =
-              meetDayOfWeek >= todayDayOfWeek
-                ? meetDayOfWeek - todayDayOfWeek
-                : 7 - (todayDayOfWeek - meetDayOfWeek);
+              weekDayNumber >= todayDayOfWeek
+                ? weekDayNumber - todayDayOfWeek
+                : 7 - (todayDayOfWeek - weekDayNumber);
+
             const meetDate = addDays(today, daysUntilMeet);
 
             const form = forms.find(
@@ -67,10 +69,7 @@ export default async function handler(
               isPending,
               weekDay: weekDays[parseInt(meet.weekDay)],
             };
-          })
-          .filter((meet) => meet.meetDate > today); // Filtrar apenas reuniões futuras
-
-        console.log("🚀 ~ pendentMeets => ", pendentMeets);
+          });
 
         res.status(200).json({ success: true, meets: pendentMeets });
       } catch (error: any) {

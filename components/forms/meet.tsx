@@ -16,8 +16,10 @@ import {
 import { useFieldArray, useForm } from "react-hook-form";
 import { Modal } from "@nextui-org/react";
 import { Plus } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+
+import { User } from "@/types";
 
 interface FormValues {
   name: string;
@@ -25,6 +27,7 @@ interface FormValues {
   weekDay: string;
   local: string;
   squads: string[];
+  users: string[];
   form: { question: string; type: string }[];
 }
 
@@ -51,6 +54,7 @@ interface MeetFormProps {
 
 export const MeetForm = ({ userId, userIsAdmin }: MeetFormProps) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [users, setUsers] = useState<User[]>([]);
   const { register, handleSubmit, watch, reset, control } = useForm<FormValues>(
     {
       defaultValues: {
@@ -59,6 +63,7 @@ export const MeetForm = ({ userId, userIsAdmin }: MeetFormProps) => {
         weekDay: "",
         local: "",
         squads: [""],
+        users: [""],
         form: [{ question: "", type: "string" }],
       },
     },
@@ -82,6 +87,30 @@ export const MeetForm = ({ userId, userIsAdmin }: MeetFormProps) => {
     name: "form",
   });
 
+  const {
+    fields: meetUsers,
+    append: appendUser,
+    remove: removeUser,
+  } = useFieldArray({
+    control,
+    name: "users" as any,
+  });
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const response = await fetch(`/api/users`, {
+        method: "PATCH",
+        body: JSON.stringify({ userId }),
+      });
+
+      const resp = await response.json();
+
+      setUsers(resp.users);
+    };
+
+    fetchUsers();
+  }, []);
+
   const onSubmit = async (data: any) => {
     try {
       await fetch("/api/meet", {
@@ -90,7 +119,9 @@ export const MeetForm = ({ userId, userIsAdmin }: MeetFormProps) => {
       });
 
       toast.success("Reunião criada com sucesso");
+      reset();
     } catch (err) {
+      console.error("🚀 ~ onSubmit ~ err => ", err);
       toast.error("Erro ao criar reunião");
     }
   };
@@ -121,7 +152,9 @@ export const MeetForm = ({ userId, userIsAdmin }: MeetFormProps) => {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                Criar reunião
+                <h1 className="text-4xl font-semibold tracking-tight">
+                  Criar reunião
+                </h1>
               </ModalHeader>
               <form
                 className="flex flex-col gap-4"
@@ -253,9 +286,61 @@ export const MeetForm = ({ userId, userIsAdmin }: MeetFormProps) => {
                         </div>
                       ))}
                     </AccordionItem>
+                    {/* ======= 5 COLUNA ======= */}
+                    <AccordionItem
+                      key="3"
+                      aria-label="Usuários"
+                      hidden={!users.length}
+                      title="Usuários"
+                    >
+                      <div className="flex flex-row gap-4 justify-between">
+                        <p className="text-xl text-gray-500 mt-2">Usuários</p>
+                        <Button
+                          color="primary"
+                          style={{ marginBottom: "10px" }}
+                          variant="solid"
+                          onClick={() => appendUser("")}
+                        >
+                          + Adicionar Usuário
+                        </Button>
+                      </div>
+                      {meetUsers.map((meetUser, index) => (
+                        <div
+                          key={meetUser as any}
+                          style={{
+                            marginBottom: "10px",
+                            display: "flex",
+                            flexDirection: "row",
+                          }}
+                        >
+                          <Select
+                            label="Usuário"
+                            placeholder="Selecione o usuário"
+                            variant="bordered"
+                            {...register(`users.${index}`, {
+                              required: true,
+                            })}
+                          >
+                            {users.map((user) => (
+                              <SelectItem key={user._id.toString()}>
+                                {user.name}
+                              </SelectItem>
+                            ))}
+                          </Select>
+                          <Button
+                            className="mt-2 ml-5"
+                            color="danger"
+                            variant="solid"
+                            onClick={() => removeUser(index)}
+                          >
+                            Remover
+                          </Button>
+                        </div>
+                      ))}
+                    </AccordionItem>
                   </Accordion>
 
-                  {/* ======= 5 COLUNA ======= */}
+                  {/* ======= 6 COLUNA ======= */}
                   <Input
                     label="Local"
                     placeholder="Local da reunião"

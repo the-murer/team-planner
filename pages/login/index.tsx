@@ -33,7 +33,7 @@ export default function DocsPage() {
         });
 
         if (res?.error) {
-          toast.error(res.error);
+          throw new Error(res.error);
         }
         if (res?.ok) {
           router.push("/dash");
@@ -56,13 +56,17 @@ export default function DocsPage() {
 
         const res = await response.json();
 
+        if (res.error) {
+          throw new Error(res.error);
+        }
+
         toast.success("Cadastro realizado com sucesso");
         if (res.data.success) {
           router.push("/");
         }
       } catch (error) {
-        toast.error("Erro ao fazer cadastro");
         console.error("🚀 error => ", error);
+        toast.error("Erro ao fazer cadastro");
       }
     }
   };
