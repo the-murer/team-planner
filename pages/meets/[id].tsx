@@ -73,7 +73,7 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
   };
 
   const copyMeetLink = () => {
-    const inviteLink = `${process.env.NEXT_PUBLIC_HOST}/invite?companyId=${meet?.companyId}&isGuest=true`;
+    const inviteLink = `${process.env.NEXT_PUBLIC_HOST}/meets/${meet?._id}?isGuest=true`;
 
     navigator.clipboard
       .writeText(inviteLink)
