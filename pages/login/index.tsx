@@ -19,10 +19,11 @@ export default function DocsPage() {
   const [selected, setSelected] = useState<React.Key>("login");
   const { register, handleSubmit, watch, reset } = useForm();
   const router = useRouter();
+  const { companyId, isAdmin } = router.query;
+
+  const enableRegister = companyId && isAdmin;
 
   const onSubmit = async (data: any) => {
-    console.log("🚀 ~ onSubmit ~ onSubmit => ", process.env.MONGO_URI);
-    console.log("🚀 ~ onSubmit ~ data => ", data);
     if (selected === "login") {
       try {
         const res = await signIn("credentials", {
@@ -30,8 +31,6 @@ export default function DocsPage() {
           email: data.email,
           password: data.password,
         });
-
-        console.log("🚀 ~ onSubmit ~ res => ", res);
 
         if (res?.error) {
           toast.error(res.error);
@@ -45,8 +44,6 @@ export default function DocsPage() {
         toast.error("Erro ao fazer login");
       }
     } else {
-      const { companyId, isAdmin } = router.query;
-
       try {
         const response = await fetch("/api/users", {
           method: "POST",
@@ -128,53 +125,55 @@ export default function DocsPage() {
                       </div>
                     </form>
                   </Tab>
-                  <Tab key="sign-up" title="Criar conta">
-                    <form
-                      className="flex flex-col gap-4 h-[300px]"
-                      onSubmit={handleSubmit(onSubmit)}
-                    >
-                      <Input
-                        {...register("name", { required: true })}
-                        isRequired
-                        label="Nome"
-                        placeholder="Insira seu nome"
-                        type="name"
-                      />
-                      <Input
-                        {...register("email", { required: true })}
-                        isRequired
-                        label="Email"
-                        placeholder="Insira seu email"
-                        type="email"
-                      />
-                      <Input
-                        {...register("password", { required: true })}
-                        isRequired
-                        label="Senha"
-                        placeholder="Insira sua senha"
-                        type="password"
-                      />
-                      <p className="text-center text-small">
-                        Já tem uma conta?{" "}
-                        <Link size="sm" onPress={() => setSelected("login")}>
-                          Fazer login
-                        </Link>
-                      </p>
-                      <div className="flex gap-2 justify-end">
-                        <Button
-                          fullWidth
-                          color="primary"
-                          type="submit"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            onSubmit(watch());
-                          }}
-                        >
-                          Cadastrar
-                        </Button>
-                      </div>
-                    </form>
-                  </Tab>
+                  {enableRegister && (
+                    <Tab key="sign-up" title="Criar conta">
+                      <form
+                        className="flex flex-col gap-4 h-[300px]"
+                        onSubmit={handleSubmit(onSubmit)}
+                      >
+                        <Input
+                          {...register("name", { required: true })}
+                          isRequired
+                          label="Nome"
+                          placeholder="Insira seu nome"
+                          type="name"
+                        />
+                        <Input
+                          {...register("email", { required: true })}
+                          isRequired
+                          label="Email"
+                          placeholder="Insira seu email"
+                          type="email"
+                        />
+                        <Input
+                          {...register("password", { required: true })}
+                          isRequired
+                          label="Senha"
+                          placeholder="Insira sua senha"
+                          type="password"
+                        />
+                        <p className="text-center text-small">
+                          Já tem uma conta?{" "}
+                          <Link size="sm" onPress={() => setSelected("login")}>
+                            Fazer login
+                          </Link>
+                        </p>
+                        <div className="flex gap-2 justify-end">
+                          <Button
+                            fullWidth
+                            color="primary"
+                            type="submit"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              onSubmit(watch());
+                            }}
+                          >
+                            Cadastrar
+                          </Button>
+                        </div>
+                      </form>
+                    </Tab>
+                  )}
                 </Tabs>
               </CardBody>
             </Card>

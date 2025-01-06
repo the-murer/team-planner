@@ -47,6 +47,7 @@ export const MeetResume = ({ forms }: MeetResumeProps) => {
   }, []);
 
   const initChatBot = async () => {
+    if (!apiKey) return;
     const openai = new OpenAI({
       apiKey: apiKey,
       dangerouslyAllowBrowser: true,
@@ -109,7 +110,7 @@ export const MeetResume = ({ forms }: MeetResumeProps) => {
     toast.success("Resumo copiado com sucesso");
   };
 
-  // if (!forms.length) return null;
+  if (!forms.length) return null;
 
   if (!apiKey) return null;
 

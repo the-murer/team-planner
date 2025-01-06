@@ -8,6 +8,7 @@ import {
   ModalHeader,
   Select,
   SelectItem,
+  Textarea,
   useDisclosure,
 } from "@nextui-org/react";
 import { MessageCirclePlus } from "lucide-react";
@@ -85,7 +86,7 @@ export const GuestModal = ({ squads, meet, submit }: GuestModalProps) => {
                   </Select>
                   {getValues("answers")?.map((answer: any, index: number) => (
                     <div key={index}>
-                      <Input
+                      <Textarea
                         label={answer.question}
                         type="textarea"
                         variant="bordered"
