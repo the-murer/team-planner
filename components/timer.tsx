@@ -38,7 +38,6 @@ export const Timer = () => {
     </Button>
   ) : (
     <Button
-      className="ml-10 mt-2"
       radius="md"
       size="md"
       variant="faded"

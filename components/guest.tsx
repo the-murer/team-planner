@@ -62,7 +62,7 @@ export const GuestModal = ({ squads, meet, submit }: GuestModalProps) => {
                 className="flex flex-col gap-4"
                 onSubmit={handleSubmit(onSubmit)}
               >
-                <ModalBody>
+                <ModalBody className="max-h-[500px] overflow-y-scroll">
                   <Input
                     label="Nome"
                     variant="bordered"
@@ -85,7 +85,7 @@ export const GuestModal = ({ squads, meet, submit }: GuestModalProps) => {
                     ))}
                   </Select>
                   {getValues("answers")?.map((answer: any, index: number) => (
-                    <div key={index}>
+                    <div key={index} className="flex flex-col gap-2">
                       <Textarea
                         label={answer.question}
                         type="textarea"
