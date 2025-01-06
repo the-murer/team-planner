@@ -1,6 +1,8 @@
 import { Button, Card } from "@nextui-org/react";
+import { RefreshCcw, Share } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getSession } from "next-auth/react";
+import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 
 import DefaultLayout from "@/components/default";
@@ -8,6 +10,7 @@ import { GuestModal } from "@/components/guest";
 import { LoadComponent } from "@/components/loadComponent";
 import { Meet } from "@/types";
 import { MeetResume } from "@/components/meetResume";
+import { NotFoundComponent } from "@/components/notFoundComponent";
 import { Timer } from "@/components/timer";
 
 type MeetsPageProps = {
@@ -29,6 +32,16 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
   const [currentFormIndex, setCurrentFormIndex] = useState(0);
   const router = useRouter();
 
+  const fetchForms = async () => {
+    const response = await fetch(`/api/form/${router.query.id}`, {
+      method: "GET",
+    });
+
+    const resp = await response.json();
+
+    setForms(resp.forms);
+  };
+
   useEffect(() => {
     const fetchMeet = async () => {
       const response = await fetch(`/api/meet/${router.query.id}`, {
@@ -40,16 +53,6 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
       setMeet(resp.meet);
 
       setLoading(false);
-    };
-
-    const fetchForms = async () => {
-      const response = await fetch(`/api/form/${router.query.id}`, {
-        method: "GET",
-      });
-
-      const resp = await response.json();
-
-      setForms(resp.forms);
     };
 
     fetchMeet();
@@ -69,23 +72,25 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
     setCurrentFormIndex(currentFormIndex - 1);
   };
 
-  if (loading) {
-    return <LoadComponent />;
-  }
+  const copyMeetLink = () => {
+    const inviteLink = `${process.env.NEXT_PUBLIC_HOST}/invite?companyId=${meet?.companyId}&isGuest=true`;
 
-  if (!meet) {
-    return <div>Meet not found</div>;
-  }
-
-  const currentForm = forms?.filter(
-    (form: any) => form.squad === currentSquad,
-  )?.[currentFormIndex];
-
-  const filteredForms = forms?.filter(
-    (form: any) => form.squad === currentSquad,
-  );
+    navigator.clipboard
+      .writeText(inviteLink)
+      .then(() => {
+        toast.success("Link copiado com sucesso!");
+      })
+      .catch((err) => {
+        toast.error("Erro ao copiar link");
+        console.error("Erro ao copiar link ", err);
+      });
+  };
 
   const submit = async (data: any) => {
+    if (!meet) {
+      return;
+    }
+
     try {
       await fetch("/api/form", {
         method: "POST",
@@ -99,19 +104,51 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
 
       setForms([...forms, data]);
     } catch (error) {
-      console.log("🚀 ~ error => ", error);
+      toast.error("Erro ao enviar resposta");
+      console.error("Erro ao enviar resposta ", error);
     }
   };
+
+  const currentForm = forms?.filter(
+    (form: any) => form.squad === currentSquad,
+  )?.[currentFormIndex];
+
+  const filteredForms = forms?.filter(
+    (form: any) => form.squad === currentSquad,
+  );
+
+  if (loading) return <LoadComponent />;
+
+  if (!meet) return <NotFoundComponent message="Reunião não encontrada" />;
 
   return (
     <DefaultLayout user={user}>
       <h1 className="text-[3rem] lg:text-5xl font-semibold tracking-tight flex flex-row">
         {meet.name}
+        <Button
+          className="ml-5 mt-2"
+          radius="md"
+          size="md"
+          variant="ghost"
+          onClick={fetchForms}
+        >
+          <RefreshCcw size={20} />
+        </Button>
         <Timer />
         {isGuest && (
           <GuestModal meet={meet} squads={meet.squads} submit={submit} />
         )}
         <MeetResume forms={forms} />
+        <Button
+          className="ml-5 mt-2"
+          radius="md"
+          size="md"
+          variant="faded"
+          onClick={copyMeetLink}
+        >
+          <Share size={20} />
+          {" Compartilhar"}
+        </Button>
       </h1>
 
       {/* <section className="flex flex-row w-100%"> */}
@@ -187,7 +224,6 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
           </Card>
         </div>
       </div>
-      {/* </section> */}
     </DefaultLayout>
   );
 }

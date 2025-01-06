@@ -1,4 +1,10 @@
-import { Button, ModalFooter, useDisclosure } from "@nextui-org/react";
+import {
+  Accordion,
+  AccordionItem,
+  Button,
+  ModalFooter,
+  useDisclosure,
+} from "@nextui-org/react";
 import {
   Input,
   ModalBody,
@@ -11,6 +17,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { Modal } from "@nextui-org/react";
 import { Plus } from "lucide-react";
 import React from "react";
+import { toast } from "react-toastify";
 
 const timeOfDays = [
   { key: "Manhã", label: "Manhã" },
@@ -41,25 +48,39 @@ export const MeetForm = ({ userId, userIsAdmin }: MeetFormProps) => {
       timeOfDay: "",
       weekDay: "",
       local: "",
+      squads: [""],
       form: [{ question: "", type: "string" }],
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const {
+    fields: questions,
+    append: appendQuestion,
+    remove: removeQuestion,
+  } = useFieldArray({
     control,
-    name: "form", // Nome do array no formulário
+    name: "form",
+  });
+
+  const {
+    fields: squads,
+    append: appendSquad,
+    remove: removeSquad,
+  } = useFieldArray({
+    control,
+    name: "squads",
   });
 
   const onSubmit = async (data: any) => {
     try {
-      const res = await fetch("/api/meet", {
+      await fetch("/api/meet", {
         method: "POST",
         body: JSON.stringify({ ...data, userId }),
       });
 
-      console.log("🚀 ~ res => ", res);
-    } catch (error) {
-      console.log("🚀 ~ error => ", error);
+      toast.success("Reunião criada com sucesso");
+    } catch (err) {
+      toast.error("Erro ao criar reunião");
     }
   };
 
@@ -79,96 +100,159 @@ export const MeetForm = ({ userId, userIsAdmin }: MeetFormProps) => {
       </Button>
 
       <Modal
+        // className="w-[800px] max-w-full mx-auto p-4"
         isOpen={isOpen}
         placement="top-center"
         scrollBehavior="inside"
         onOpenChange={onOpenChange}
       >
-        <ModalContent>
+        <ModalContent className="w-[800px] max-w-full mx-auto p-4">
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
                 Criar reunião
               </ModalHeader>
               <form
-                className="flex flex-col gap-4 h-[300px]"
+                className="flex flex-col gap-4"
                 onSubmit={handleSubmit(onSubmit)}
               >
-                <ModalBody>
+                <ModalBody className="h-[500px]">
+                  {/* ======= 1 COLUNA ======= */}
                   <Input
                     label="Nome"
                     placeholder="Nome da reunião"
                     variant="bordered"
                     {...register("name", { required: true })}
                   />
-                  <Select
-                    // className="max-w-xs"
-                    label="Período do dia"
-                    placeholder="Selecione o período do dia"
-                    variant="bordered"
-                    {...register("timeOfDay", { required: true })}
-                  >
-                    {timeOfDays.map((time) => (
-                      <SelectItem key={time.key}>{time.label}</SelectItem>
-                    ))}
-                  </Select>
-                  <Select
-                    // className="max-w-xs"
-                    label="Dia da semana"
-                    placeholder="Selecione o dia da reunião"
-                    variant="bordered"
-                    {...register("weekDay", { required: true })}
-                  >
-                    {weekDays.map((time) => (
-                      <SelectItem key={time.key}>{time.label}</SelectItem>
-                    ))}
-                  </Select>
+                  {/* ======= 2 COLUNA ======= */}
+                  <div className="flex flex-row gap-4">
+                    <Select
+                      // className="max-w-xs"
+                      label="Período do dia"
+                      placeholder="Selecione o período do dia"
+                      variant="bordered"
+                      {...register("timeOfDay", { required: true })}
+                    >
+                      {timeOfDays.map((time) => (
+                        <SelectItem key={time.key}>{time.label}</SelectItem>
+                      ))}
+                    </Select>
+                    <Select
+                      label="Dia da semana"
+                      placeholder="Selecione o dia da reunião"
+                      variant="bordered"
+                      {...register("weekDay", { required: true })}
+                    >
+                      {weekDays.map((time) => (
+                        <SelectItem key={time.key}>{time.label}</SelectItem>
+                      ))}
+                    </Select>
+                  </div>
+
+                  <Accordion>
+                    {/* ======= 3 COLUNA ======= */}
+                    <AccordionItem key="1" aria-label="Setores" title="Setores">
+                      <div className="flex flex-row gap-4 justify-between">
+                        <p className="text-xl text-gray-500 mt-2">Setores</p>
+                        <Button
+                          color="primary"
+                          style={{ marginBottom: "10px" }}
+                          variant="solid"
+                          onClick={() => appendSquad("")}
+                        >
+                          + Adicionar Setor
+                        </Button>
+                      </div>
+                      {squads.map((field, index) => (
+                        <div
+                          key={field.id}
+                          style={{
+                            marginBottom: "10px",
+                            display: "flex",
+                            flexDirection: "row",
+                          }}
+                        >
+                          <Input
+                            label="Setor"
+                            variant="bordered"
+                            {...register(`squads.${index}`, {
+                              required: true,
+                            })}
+                            placeholder={`Setor ${index + 1}`}
+                            style={{ marginRight: "10px" }}
+                          />
+                          <Button
+                            className="mt-2 ml-5"
+                            color="danger"
+                            variant="solid"
+                            onClick={() => removeSquad(index)}
+                          >
+                            Remover
+                          </Button>
+                        </div>
+                      ))}
+                    </AccordionItem>
+                    {/* ======= 4 COLUNA ======= */}
+                    <AccordionItem
+                      key="2"
+                      aria-label="Perguntas"
+                      title="Perguntas"
+                    >
+                      <div className="flex flex-row gap-4 justify-between">
+                        <p className="text-xl text-gray-500 mt-2">
+                          Perguntas da reunião
+                        </p>
+                        <Button
+                          color="primary"
+                          style={{ marginBottom: "10px" }}
+                          variant="solid"
+                          onClick={() =>
+                            appendQuestion({ question: "", type: "string" })
+                          }
+                        >
+                          + Adicionar Pergunta
+                        </Button>
+                      </div>
+                      {questions.map((field, index) => (
+                        <div
+                          key={field.id}
+                          style={{
+                            marginBottom: "10px",
+                            display: "flex",
+                            flexDirection: "row",
+                          }}
+                        >
+                          <Input
+                            label="Pergunta"
+                            variant="bordered"
+                            {...register(`form.${index}.question`, {
+                              required: true,
+                            })}
+                            placeholder={`Pergunta ${index + 1}`}
+                            style={{ marginRight: "10px" }}
+                          />
+                          <Button
+                            className="mt-2 ml-5"
+                            color="danger"
+                            variant="solid"
+                            onClick={() => removeQuestion(index)}
+                          >
+                            Remover
+                          </Button>
+                        </div>
+                      ))}
+                    </AccordionItem>
+                  </Accordion>
+
+                  {/* ======= 5 COLUNA ======= */}
                   <Input
-                    label="Nome"
+                    label="Local"
                     placeholder="Local da reunião"
                     variant="bordered"
                     {...register("local", { required: false })}
                   />
-                  {fields.map((field, index) => (
-                    <div
-                      key={field.id}
-                      style={{
-                        marginBottom: "10px",
-                        width: "80%",
-                        display: "flex",
-                        flexDirection: "row",
-                      }}
-                    >
-                      <Input
-                        label="Pergunta"
-                        variant="bordered"
-                        {...register(`form.${index}.question`, {
-                          required: true,
-                        })}
-                        placeholder={`Pergunta ${index + 1}`}
-                        style={{ marginRight: "10px" }}
-                      />
-                      <Button
-                        className="mt-2 ml-5"
-                        color="danger"
-                        variant="solid"
-                        onClick={() => remove(index)}
-                      >
-                        Remover
-                      </Button>
-                    </div>
-                  ))}
-
-                  <Button
-                    color="primary"
-                    style={{ marginBottom: "10px" }}
-                    variant="bordered"
-                    onClick={() => append({ question: "", type: "string" })}
-                  >
-                    + Adicionar Pergunta
-                  </Button>
                 </ModalBody>
-                <ModalFooter>
+                <ModalFooter className="flex flex-row justify-between">
                   <Button
                     color="danger"
                     variant="flat"

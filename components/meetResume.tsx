@@ -11,6 +11,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { BrainCircuit } from "lucide-react";
 import OpenAI from "openai";
+import { toast } from "react-toastify";
 
 const generateInput = (forms: any[]) => {
   return `
@@ -36,7 +37,6 @@ export const MeetResume = ({ forms }: MeetResumeProps) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [loading, setLoading] = useState(false);
   const [openai, setOpenai] = useState<OpenAI | null>(null);
-  const [assistant, setAssistant] = useState<any | null>(null);
   const [thread, setThread] = useState<any | null>(null);
   const [currentMessage, setCurrentMessage] = useState<string>("");
 
@@ -52,41 +52,27 @@ export const MeetResume = ({ forms }: MeetResumeProps) => {
       dangerouslyAllowBrowser: true,
     });
 
-    // Create an assistant
-    const assistant = await openai.beta.assistants.create({
-      name: "Assitente de programação",
-      instructions:
-        "Voce tem o trabalho de gerar um resumo do que foi discutido no encontro semanal de uma equipe que trabalha com internet das coisas.",
-      model: "gpt-4o-mini",
-    });
-
-    // Create a thread
     const thread = await openai.beta.threads.create();
 
     setOpenai(openai);
-    setAssistant(assistant);
     setThread(thread);
   };
 
   const generateResume = async () => {
-    if (!openai) return;
+    const assistantId = process.env.NEXT_PUBLIC_OPENAI_ASSISTANT_ID;
+
+    if (!openai || !thread || !assistantId) return;
 
     setLoading(true);
     setCurrentMessage("");
-    console.log(
-      "🚀 ~ generateResume ~ generateInput(forms) => ",
-      generateInput(forms),
-    );
-    console.log("🚀 ~ generateResume ~ forms => ", forms);
     // Send a message to the thread
     await openai.beta.threads.messages.create(thread.id, {
       role: "user",
       content: generateInput(forms),
     });
 
-    // Run the assistant
     const run = await openai.beta.threads.runs.create(thread.id, {
-      assistant_id: assistant.id,
+      assistant_id: assistantId,
     });
 
     let response = await openai.beta.threads.runs.retrieve(thread.id, run.id);
@@ -118,6 +104,15 @@ export const MeetResume = ({ forms }: MeetResumeProps) => {
     setLoading(false);
   };
 
+  const copyResume = () => {
+    navigator.clipboard.writeText(currentMessage);
+    toast.success("Resumo copiado com sucesso");
+  };
+
+  // if (!forms.length) return null;
+
+  if (!apiKey) return null;
+
   return (
     <>
       <Button
@@ -140,26 +135,37 @@ export const MeetResume = ({ forms }: MeetResumeProps) => {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                Resumo gerado por inteligência artificial
+                <div className="flex justify-between mt-6">
+                  Resumo gerado por inteligência artificial
+                  {!!currentMessage && (
+                    <Button
+                      color="primary"
+                      variant="solid"
+                      onPress={copyResume}
+                    >
+                      Copiar
+                    </Button>
+                  )}
+                </div>
               </ModalHeader>
 
               <ModalBody>
-                {loading ? (
-                  <div>
-                    <Spinner />
-                    <p className="mt-4">{currentMessage}</p>
-                  </div>
-                ) : (
-                  <div>
-                    {currentMessage || "Clique em 'Gerar resumo' para começar"}
-                  </div>
-                )}
+                <div>
+                  {loading && <Spinner />}
+                  {currentMessage || "Clique em 'Gerar resumo' para começar"}
+                </div>
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="flat" onPress={onClose}>
+                <Button color="danger" variant="solid" onPress={onClose}>
                   Fechar
                 </Button>
-                <Button color="success" variant="flat" onPress={generateResume}>
+
+                <Button
+                  color="primary"
+                  isDisabled={loading || !!currentMessage}
+                  variant="solid"
+                  onPress={generateResume}
+                >
                   Gerar resumo
                 </Button>
               </ModalFooter>
