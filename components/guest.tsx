@@ -36,7 +36,6 @@ export const GuestModal = ({ squads, meet, submit }: GuestModalProps) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const onSubmit = (data: any) => {
-    console.log("🚀 ~ onSubmit ~ data => ", data);
     submit(data);
   };
 
@@ -94,6 +93,24 @@ export const GuestModal = ({ squads, meet, submit }: GuestModalProps) => {
                           required: true,
                         })}
                         placeholder={`Pergunta ${index + 1}`}
+                        onKeyDown={(e) => {
+                          if (e.key === "Escape") {
+                            e.preventDefault();
+                          }
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            const textarea = e.target as HTMLTextAreaElement;
+                            const { selectionStart, selectionEnd } = textarea;
+                            const value = textarea.value;
+
+                            textarea.value =
+                              value.substring(0, selectionStart) +
+                              "\n" +
+                              value.substring(selectionEnd);
+                            textarea.selectionStart = textarea.selectionEnd =
+                              selectionStart + 1;
+                          }
+                        }}
                       />
                     </div>
                   ))}
