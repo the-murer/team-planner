@@ -34,7 +34,7 @@ const timeOfDays = [
   { key: "Noite", label: "Noite" },
 ];
 
-const weekDays = [
+export const weekDays = [
   { key: "0", label: "Domingo" },
   { key: "1", label: "Segunda-feira" },
   { key: "2", label: "Terça-feira" },

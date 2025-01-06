@@ -115,13 +115,7 @@ export const MeetResume = ({ forms }: MeetResumeProps) => {
 
   return (
     <>
-      <Button
-        className="ml-5 mt-2"
-        radius="md"
-        size="md"
-        variant="faded"
-        onClick={() => onOpen()}
-      >
+      <Button radius="md" size="md" variant="faded" onClick={() => onOpen()}>
         <BrainCircuit size={20} />
         {" Gerar resumo"}
       </Button>

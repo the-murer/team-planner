@@ -3,16 +3,21 @@ import { getSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 
+import { MeetForm, weekDays } from "@/components/forms/meet";
 import DefaultLayout from "@/components/default";
 import { LoadComponent } from "@/components/loadComponent";
 import { Meet } from "@/types";
-import { MeetForm } from "@/components/forms/meet";
 import TableComponent from "@/components/table";
 
 const columns = [
   { key: "name", label: "Nome" },
   { key: "timeOfDay", label: "Horário" },
-  { key: "weekDay", label: "Dia da semana" },
+  {
+    key: "weekDay",
+    label: "Dia da semana",
+    modifier: (value: string) =>
+      weekDays.find((day: any) => day.key === value)?.label,
+  },
   { key: "local", label: "Local" },
   { key: "actions", label: "Ações" },
 ];

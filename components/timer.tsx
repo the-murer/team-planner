@@ -28,7 +28,6 @@ export const Timer = () => {
 
   return !started && time === 0 ? (
     <Button
-      className="ml-10 mt-2"
       radius="md"
       size="md"
       variant="faded"

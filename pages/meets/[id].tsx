@@ -73,7 +73,9 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
   };
 
   const copyMeetLink = () => {
-    const inviteLink = `${process.env.NEXT_PUBLIC_HOST}/meets/${meet?._id}?isGuest=true`;
+    const link =
+      process.env.NEXT_PUBLIC_HOST || "https://team-planner.vercel.app";
+    const inviteLink = `${link}/meets/${meet?._id}?isGuest=true`;
 
     navigator.clipboard
       .writeText(inviteLink)
@@ -123,15 +125,9 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
 
   return (
     <DefaultLayout user={user}>
-      <h1 className="text-[3rem] lg:text-5xl font-semibold tracking-tight flex flex-row">
-        {meet.name}
-        <Button
-          className="ml-5 mt-2"
-          radius="md"
-          size="md"
-          variant="ghost"
-          onClick={fetchForms}
-        >
+      <div className="flex flex-col lg:flex-row tracking-tight gap-4">
+        <h1 className="text-[3xl] lg:text-5xl font-semibold">{meet.name}</h1>
+        <Button radius="md" size="md" variant="ghost" onClick={fetchForms}>
           <RefreshCcw size={20} />
         </Button>
         <Timer />
@@ -139,21 +135,14 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
           <GuestModal meet={meet} squads={meet.squads} submit={submit} />
         )}
         <MeetResume forms={forms} />
-        <Button
-          className="ml-5 mt-2"
-          radius="md"
-          size="md"
-          variant="faded"
-          onClick={copyMeetLink}
-        >
+        <Button radius="md" size="md" variant="faded" onClick={copyMeetLink}>
           <Share size={20} />
           {" Compartilhar"}
         </Button>
-      </h1>
+      </div>
 
-      {/* <section className="flex flex-row w-100%"> */}
-      <div className="flex flex-row w-100%">
-        <div className="mt-10 w-30% flex flex-col gap-4 mr-10">
+      <div className="flex flex-col lg:flex-row w-100%">
+        <div className="mt-10 w-30% sm:w-full flex flex-col gap-4 mr-10">
           {meet.squads.map((squad) => (
             <Button
               key={squad}

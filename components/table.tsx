@@ -74,7 +74,15 @@ export default function TableComponent({
               onClick={() => onClickEvent(row)}
               onDoubleClick={() => onDoubleClickEvent(row)}
             >
-              {(columnKey) => <TableCell>{row[columnKey]}</TableCell>}
+              {(columnKey) => {
+                const { modifier } = columns.find((c) => c.key === columnKey);
+
+                return (
+                  <TableCell>
+                    {modifier ? modifier(row[columnKey]) : row[columnKey]}
+                  </TableCell>
+                );
+              }}
             </TableRow>
           ))}
         </TableBody>

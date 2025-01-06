@@ -36,18 +36,13 @@ export const GuestModal = ({ squads, meet, submit }: GuestModalProps) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const onSubmit = (data: any) => {
+    console.log("🚀 ~ onSubmit ~ data => ", data);
     submit(data);
   };
 
   return (
     <>
-      <Button
-        className="ml-5 mt-2"
-        radius="md"
-        size="md"
-        variant="faded"
-        onClick={() => onOpen()}
-      >
+      <Button radius="md" size="md" variant="faded" onClick={() => onOpen()}>
         <MessageCirclePlus size={20} />
         {" Enviar resposta"}
       </Button>
@@ -93,6 +88,7 @@ export const GuestModal = ({ squads, meet, submit }: GuestModalProps) => {
                     <div key={index}>
                       <Input
                         label={answer.question}
+                        type="textarea"
                         variant="bordered"
                         {...register(`answers.${index}.answer`, {
                           required: true,
@@ -116,7 +112,7 @@ export const GuestModal = ({ squads, meet, submit }: GuestModalProps) => {
                     color="primary"
                     type="submit"
                     onPress={() => {
-                      onClose(), watch();
+                      onClose(), submit(getValues());
                     }}
                   >
                     Enviar Formulário
