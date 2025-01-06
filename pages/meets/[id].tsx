@@ -225,7 +225,7 @@ export async function getServerSideProps(context: any) {
   if (!session && !isGuest) {
     return {
       redirect: {
-        destination: "/auth/signin",
+        destination: "/login",
         permanent: false,
       },
     };

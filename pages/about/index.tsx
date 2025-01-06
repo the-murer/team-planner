@@ -26,18 +26,9 @@ export default function AboutPage({ user }: AboutPageProps) {
 export async function getServerSideProps(context: any) {
   const session = await getSession(context);
 
-  if (!session) {
-    return {
-      redirect: {
-        destination: "/auth/signin",
-        permanent: false,
-      },
-    };
-  }
-
   return {
     props: {
-      user: session.user || null,
+      user: session?.user || null,
     },
   };
 }

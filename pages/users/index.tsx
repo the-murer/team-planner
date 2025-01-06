@@ -138,7 +138,7 @@ export async function getServerSideProps(context: any) {
   if (!session || !userIsAdmin) {
     return {
       redirect: {
-        destination: "/auth/signin",
+        destination: "/login",
         permanent: false,
       },
     };
