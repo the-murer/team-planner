@@ -72,6 +72,11 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
     setCurrentFormIndex(currentFormIndex - 1);
   };
 
+  const handleNextSquad = () => {
+    setCurrentSquad(meet?.squads[meet?.squads.indexOf(currentSquad || "") + 1]);
+    setCurrentFormIndex(0);
+  };
+
   const copyMeetLink = () => {
     const link =
       process.env.NEXT_PUBLIC_HOST || "https://team-planner.vercel.app";
@@ -118,6 +123,9 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
   const filteredForms = forms?.filter(
     (form: any) => form.squad === currentSquad,
   );
+  const hasNextSquad =
+    meet?.squads?.indexOf(currentSquad || "") ||
+    0 < (meet?.squads.length || 0) - 1;
 
   if (loading) return <LoadComponent />;
 
@@ -165,31 +173,40 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
               <div className="text-lg font-medium mb-4 p-4 items-start">
                 {currentForm ? (
                   <>
-                    <h2 className="font-bold text-2xl mb-4">
-                      {currentForm?.name}
-                      <Button
-                        className="ml-4"
-                        color={currentFormIndex === 0 ? "default" : "primary"}
-                        isDisabled={currentFormIndex === 0}
-                        onPress={handlePreviousForm}
-                      >
-                        Anterior
-                      </Button>
-                      <Button
-                        className="ml-4"
-                        color={
-                          currentFormIndex === filteredForms.length - 1
-                            ? "default"
-                            : "primary"
-                        }
-                        isDisabled={
-                          currentFormIndex === filteredForms.length - 1
-                        }
-                        onPress={handleNextForm}
-                      >
-                        Próximo
-                      </Button>
-                    </h2>
+                    <div className="flex flex-row justify-between">
+                      <h2 className="font-bold text-2xl mb-4">
+                        {currentForm?.name}
+                      </h2>
+                      <div className="flex flex-row gap-2">
+                        <Button
+                          color={currentFormIndex === 0 ? "default" : "primary"}
+                          isDisabled={currentFormIndex === 0}
+                          onPress={handlePreviousForm}
+                        >
+                          Anterior
+                        </Button>
+                        <Button
+                          color={
+                            currentFormIndex === filteredForms.length - 1
+                              ? "default"
+                              : "primary"
+                          }
+                          isDisabled={
+                            currentFormIndex === filteredForms.length - 1
+                          }
+                          onPress={handleNextForm}
+                        >
+                          Próximo
+                        </Button>
+                        {hasNextSquad &&
+                          currentFormIndex === filteredForms.length - 1 && (
+                            <Button color="primary" onPress={handleNextSquad}>
+                              Próxima Squad
+                            </Button>
+                          )}
+                      </div>
+                    </div>
+
                     {currentForm?.answers.map((answer: any) => (
                       <div key={answer.id} className="flex flex-col gap-2 mb-5">
                         <p className="text-xl font-medium">{answer.question}</p>
@@ -200,9 +217,18 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
                     ))}
                   </>
                 ) : (
-                  <h2 className="text-center text-lg font-medium mb-4">
-                    Nenhum formulário encontrado
-                  </h2>
+                  <div className="flex flex-row justify-between">
+                    <h2 className="text-center text-2xl font-medium mb-4">
+                      Nenhum formulário encontrado
+                    </h2>
+                    <Button
+                      className="w-50px"
+                      color="primary"
+                      onPress={handleNextSquad}
+                    >
+                      Próxima Squad
+                    </Button>
+                  </div>
                 )}
               </div>
             ) : (
