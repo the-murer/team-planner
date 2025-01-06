@@ -19,6 +19,15 @@ import { Plus } from "lucide-react";
 import React from "react";
 import { toast } from "react-toastify";
 
+interface FormValues {
+  name: string;
+  timeOfDay: string;
+  weekDay: string;
+  local: string;
+  squads: string[];
+  form: { question: string; type: string }[];
+}
+
 const timeOfDays = [
   { key: "Manhã", label: "Manhã" },
   { key: "Tarde", label: "Tarde" },
@@ -42,15 +51,26 @@ interface MeetFormProps {
 
 export const MeetForm = ({ userId, userIsAdmin }: MeetFormProps) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const { register, handleSubmit, watch, reset, control } = useForm({
-    defaultValues: {
-      name: "",
-      timeOfDay: "",
-      weekDay: "",
-      local: "",
-      squads: [""],
-      form: [{ question: "", type: "string" }],
+  const { register, handleSubmit, watch, reset, control } = useForm<FormValues>(
+    {
+      defaultValues: {
+        name: "",
+        timeOfDay: "",
+        weekDay: "",
+        local: "",
+        squads: [""],
+        form: [{ question: "", type: "string" }],
+      },
     },
+  );
+
+  const {
+    fields: squads,
+    append: appendSquad,
+    remove: removeSquad,
+  } = useFieldArray({
+    control,
+    name: "squads" as any,
   });
 
   const {
@@ -60,15 +80,6 @@ export const MeetForm = ({ userId, userIsAdmin }: MeetFormProps) => {
   } = useFieldArray({
     control,
     name: "form",
-  });
-
-  const {
-    fields: squads,
-    append: appendSquad,
-    remove: removeSquad,
-  } = useFieldArray({
-    control,
-    name: "squads",
   });
 
   const onSubmit = async (data: any) => {
