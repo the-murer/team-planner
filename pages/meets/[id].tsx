@@ -126,7 +126,7 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
   return (
     <DefaultLayout user={user}>
       <div className="flex flex-col lg:flex-row tracking-tight gap-4">
-        <h1 className="text-[3xl] lg:text-5xl font-semibold">{meet.name}</h1>
+        <h1 className="text-4xl lg:text-5xl font-semibold">{meet.name}</h1>
         <Button radius="md" size="md" variant="ghost" onClick={fetchForms}>
           <RefreshCcw size={20} />
         </Button>
@@ -142,7 +142,7 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
       </div>
 
       <div className="flex flex-col lg:flex-row w-100%">
-        <div className="mt-10 w-30% sm:w-full flex flex-col gap-4 mr-10">
+        <div className="mt-10 flex flex-col gap-4 mr-10">
           {meet.squads.map((squad) => (
             <Button
               key={squad}
