@@ -127,7 +127,6 @@ export const GuestModal = ({ squads, meet, submit }: GuestModalProps) => {
                   </Button>
                   <Button
                     color="primary"
-                    type="submit"
                     onPress={() => {
                       onClose(), submit(getValues());
                     }}
