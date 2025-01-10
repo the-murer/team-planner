@@ -26,6 +26,17 @@ export type Meet = {
   squads: string[];
 };
 
+export type Form = {
+  _id: Types.ObjectId;
+  name: string;
+  squad: string;
+  answers: any[];
+  userId: string;
+  companyId: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export type Company = {
   _id: Types.ObjectId;
   name: string;

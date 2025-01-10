@@ -1,17 +1,19 @@
 import { Button, Card } from "@nextui-org/react";
 import { RefreshCcw, Share } from "lucide-react";
+import { addDays, formatISO, startOfWeek, subDays } from "date-fns";
 import { useEffect, useState } from "react";
 import { getSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 
+import { Form, Meet } from "@/types";
 import DefaultLayout from "@/components/default";
 import { GuestModal } from "@/components/guest";
 import { LoadComponent } from "@/components/loadComponent";
-import { Meet } from "@/types";
 import { MeetResume } from "@/components/meetResume";
 import { NotFoundComponent } from "@/components/notFoundComponent";
 import { Timer } from "@/components/timer";
+import { WeekDatePicker } from "@/components/weekDatePicker";
 
 type MeetsPageProps = {
   user: {
@@ -26,16 +28,20 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
   const [loading, setLoading] = useState(true);
   const [forms, setForms] = useState<any[]>([]);
   const [meet, setMeet] = useState<Meet | undefined>(undefined);
+  const [currentFormIndex, setCurrentFormIndex] = useState(0);
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [currentSquad, setCurrentSquad] = useState<string | undefined>(
     undefined,
   );
-  const [currentFormIndex, setCurrentFormIndex] = useState(0);
   const router = useRouter();
 
-  const fetchForms = async () => {
-    const response = await fetch(`/api/form/${router.query.id}`, {
-      method: "GET",
-    });
+  const fetchForms = async (startDate: string, endDate: string) => {
+    const response = await fetch(
+      `/api/form/${router.query.id}?startDate=${startDate}&endDate=${endDate}`,
+      {
+        method: "GET",
+      },
+    );
 
     const resp = await response.json();
 
@@ -56,8 +62,22 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
     };
 
     fetchMeet();
-    fetchForms();
   }, [router.query.id]);
+
+  useEffect(() => {
+    if (!meet) return;
+
+    const currentDate = addDays(
+      startOfWeek(new Date()),
+      parseInt(meet.weekDay!),
+    );
+
+    const date = new Date(currentDate);
+    const startDate = formatISO(subDays(date, 1));
+    const endDate = formatISO(addDays(date, 1));
+
+    fetchForms(startDate, endDate);
+  }, [meet]);
 
   const handleSquadClick = (squad: string) => {
     setCurrentSquad(squad);
@@ -70,6 +90,10 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
 
   const handlePreviousForm = () => {
     setCurrentFormIndex(currentFormIndex - 1);
+  };
+
+  const handleDateChange = (startDate: string, endDate: string) => {
+    fetchForms(startDate, endDate);
   };
 
   const handleNextSquad = () => {
@@ -117,12 +141,21 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
     }
   };
 
+  const refreshForms = () => {
+    const date = new Date(currentDate);
+
+    const startDate = formatISO(subDays(date, 1));
+    const endDate = formatISO(addDays(date, 1));
+
+    fetchForms(startDate, endDate);
+  };
+
   const currentForm = forms?.filter(
-    (form: any) => form.squad === currentSquad,
+    (form: Form) => form.squad === currentSquad,
   )?.[currentFormIndex];
 
   const filteredForms = forms?.filter(
-    (form: any) => form.squad === currentSquad,
+    (form: Form) => form.squad === currentSquad,
   );
   const hasNextSquad =
     meet?.squads?.indexOf(currentSquad || "") ||
@@ -136,7 +169,7 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
     <DefaultLayout user={user}>
       <div className="flex flex-col lg:flex-row tracking-tight gap-4">
         <h1 className="text-4xl lg:text-5xl font-semibold">{meet.name}</h1>
-        <Button radius="md" size="md" variant="ghost" onClick={fetchForms}>
+        <Button radius="md" size="md" variant="ghost" onPress={refreshForms}>
           <RefreshCcw size={20} />
         </Button>
         <Timer />
@@ -144,10 +177,14 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
           <GuestModal meet={meet} squads={meet.squads} submit={submit} />
         )}
         <MeetResume forms={forms} />
-        <Button radius="md" size="md" variant="faded" onClick={copyMeetLink}>
+        <Button radius="md" size="md" variant="faded" onPress={copyMeetLink}>
           <Share size={20} />
           {" Compartilhar"}
         </Button>
+        <WeekDatePicker
+          handleDateChange={handleDateChange}
+          originalDate={currentDate}
+        />
       </div>
 
       <div className="flex flex-col lg:flex-row w-100%">
