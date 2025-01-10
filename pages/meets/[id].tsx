@@ -1,6 +1,6 @@
 import { Button, Card } from "@nextui-org/react";
 import { RefreshCcw, Share } from "lucide-react";
-import { addDays, formatISO, startOfWeek, subDays } from "date-fns";
+import { addDays, formatISO, subDays } from "date-fns";
 import { useEffect, useState } from "react";
 import { getSession } from "next-auth/react";
 import { toast } from "react-toastify";
@@ -29,7 +29,7 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
   const [forms, setForms] = useState<any[]>([]);
   const [meet, setMeet] = useState<Meet | undefined>(undefined);
   const [currentFormIndex, setCurrentFormIndex] = useState(0);
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState<Date | undefined>(undefined);
   const [currentSquad, setCurrentSquad] = useState<string | undefined>(
     undefined,
   );
@@ -63,21 +63,6 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
 
     fetchMeet();
   }, [router.query.id]);
-
-  useEffect(() => {
-    if (!meet) return;
-
-    const currentDate = addDays(
-      startOfWeek(new Date()),
-      parseInt(meet.weekDay!),
-    );
-
-    const date = new Date(currentDate);
-    const startDate = formatISO(subDays(date, 1));
-    const endDate = formatISO(addDays(date, 1));
-
-    fetchForms(startDate, endDate);
-  }, [meet]);
 
   const handleSquadClick = (squad: string) => {
     setCurrentSquad(squad);
@@ -142,6 +127,8 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
   };
 
   const refreshForms = () => {
+    if (!currentDate) return;
+
     const date = new Date(currentDate);
 
     const startDate = formatISO(subDays(date, 1));
@@ -182,8 +169,10 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
           {" Compartilhar"}
         </Button>
         <WeekDatePicker
+          currentDate={currentDate}
           handleDateChange={handleDateChange}
-          originalDate={currentDate}
+          meet={meet}
+          setCurrentDate={setCurrentDate}
         />
       </div>
 
@@ -248,7 +237,7 @@ export default function MeetsPage({ user, isGuest }: MeetsPageProps) {
                     {currentForm?.answers.map((answer: any) => (
                       <div key={answer.id} className="flex flex-col gap-2 mb-5">
                         <p className="text-xl font-medium">{answer.question}</p>
-                        <p className="text-sm font-medium text-gray-300">
+                        <p className="text-md font-medium text-gray-300">
                           {answer.answer}
                         </p>
                       </div>
