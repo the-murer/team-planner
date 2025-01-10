@@ -30,7 +30,7 @@ export type Form = {
   _id: Types.ObjectId;
   name: string;
   squad: string;
-  answers: any[];
+  answers: { question: string; answer: string }[];
   userId: string;
   companyId: string;
   createdAt: Date;

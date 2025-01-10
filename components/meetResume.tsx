@@ -13,6 +13,8 @@ import { BrainCircuit } from "lucide-react";
 import OpenAI from "openai";
 import { toast } from "react-toastify";
 
+import { Form } from "@/types";
+
 const generateInput = (forms: any[]) => {
   return `
   Preciso que voce gere um resumo do que foi discutido no encontro.
@@ -110,9 +112,43 @@ export const MeetResume = ({ forms }: MeetResumeProps) => {
     toast.success("Resumo copiado com sucesso");
   };
 
+  const copyAllAnswers = () => {
+    function mapFormToString(forms: Form[]): string {
+      const grouped = forms.reduce(
+        (acc, form) => {
+          acc[form.squad] = acc[form.squad] || [];
+          acc[form.squad].push(form);
+
+          return acc;
+        },
+        {} as Record<string, Form[]>,
+      );
+
+      return Object.entries(grouped)
+        .map(([squad, members]) => {
+          const people = members
+            .map(
+              (member) =>
+                `nome: ${member.name}\n${member.answers
+                  .map(
+                    (answer) => `  ${answer.question}\n   R: ${answer.answer}`,
+                  )
+                  .join("\n")}`,
+            )
+            .join("\n\n");
+
+          return `squad: ${squad}\n\n${people}`;
+        })
+        .join("\n\n");
+    }
+
+    navigator.clipboard.writeText(mapFormToString(forms));
+    toast.success("Resumo copiado com sucesso");
+  };
+
   if (!forms.length) return null;
 
-  if (!apiKey) return null;
+  // if (!apiKey) return null;
 
   return (
     <>
@@ -153,6 +189,13 @@ export const MeetResume = ({ forms }: MeetResumeProps) => {
               <ModalFooter>
                 <Button color="danger" variant="solid" onPress={onClose}>
                   Fechar
+                </Button>
+                <Button
+                  color="secondary"
+                  variant="solid"
+                  onPress={copyAllAnswers}
+                >
+                  Copiar todas as respostas
                 </Button>
 
                 <Button
