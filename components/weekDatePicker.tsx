@@ -30,7 +30,8 @@ export const WeekDatePicker = ({
     setCurrentDate(currentDate);
 
     const date = new Date(currentDate);
-    const startDate = formatISO(subDays(date, 3));
+
+    const startDate = formatISO(subDays(date, 4));
     const endDate = formatISO(addDays(date, 1));
 
     handleDateChange(startDate, endDate);
@@ -44,7 +45,7 @@ export const WeekDatePicker = ({
 
     setCurrentDate(newDate);
 
-    const startDate = formatISO(subDays(newDate, 1));
+    const startDate = formatISO(subDays(newDate, 4));
     const endDate = formatISO(addDays(newDate, 1));
 
     handleDateChange(startDate, endDate);
